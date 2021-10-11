@@ -24,10 +24,18 @@
 						<img src="../static/images/img-01.png" alt="IMG">
 					</div>
 
-					<form class="login100-form validate-form">
+					<form class="login100-form validate-form" method="post" action="/login">
 						<span class="login100-form-title">
 							Ingresar
 						</span>
+
+						{% with messages = get_flashed_messages() %}
+						{% if messages %}
+							<div style="background-color: rgb(209, 85, 85);	color: white; border: 3px solid rgb(189, 37, 37);border-radius: 20px;padding: 12px;">
+								{{ messages[0] }}
+							</div>
+						{% endif %}
+						{% endwith %}
 
 						<div class="wrap-input100 validate-input" data-validate = "Este campo es obligatorio">
 							<input class="input100" type="text" name="email" placeholder="Usuario">

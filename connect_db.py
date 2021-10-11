@@ -2,13 +2,13 @@ import cx_Oracle
 
 class connect():
 
-    def __init__(self):
+    def __init__(self,user="natame",passw="natame"):
         host = "localhost"
-        user = "natame"
-        passw = "1234"
-        tsname = "xe"
+        tsname = "XE"
+        self.connected=False
 
-        lib_dir = r"C:\Users\USER\Downloads\Instaladores\instantclient_19_10"
+        #lib_dir = r"C:\Users\USER\Downloads\Instaladores\instantclient_19_10"
+        lib_dir = r"C:\oracle_instantclient\instantclient_19_11"
 
         try:
             cx_Oracle.init_oracle_client(lib_dir=lib_dir)
@@ -20,17 +20,21 @@ class connect():
 
         try:
             self.conexion = cx_Oracle.connect(user, passw, host+"/"+tsname)
+            self.connected=True
         except Exception as error:
             print("No se pudo conectar a la base de datos. Error: ")
+            print(error)
+        print("Conexion Establecida!!!")
+
+    @staticmethod
+    def getConnection(self):
+        return self.conexion
+
+    def getConnectionState(self):
+        if self.connected:
+            return True
         else:
-            print("Conexion Establecida!!!")
-    
-    def sentenciaCompuesta(self, sentencia):
-        cursor = self.conexion.cursor()
-        cursor.execute(sentencia)
-        datos = cursor.fetchall()
-        cursor.close
-        return datos
+            return False
 
     def close(self):
         if self.conexion:
@@ -43,3 +47,10 @@ class connect():
         cursor = self.conexion.cursor()
         cursor.execute(sentencia)
         cursor.close()
+
+    def sentenciaCompuesta(self, sentencia):
+        cursor = self.conexion.cursor()
+        cursor.execute(sentencia)
+        datos = cursor.fetchall()
+        cursor.close
+        return datos
