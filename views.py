@@ -47,7 +47,7 @@ def show_product():
 def show_product():
     return render_template('login.html')
 
-USER_DATA = {"k_tipoid":"","k_identificacion":-1,"n_usuario":"","k_region":-1}
+USER_DATA = {"k_tipoid":"","k_identificacion":-1,"n_usuario":"","k_region":-1,"rol":""}
 
 @login.route("/", methods=["POST"])
 def login_post():
@@ -65,6 +65,9 @@ def login_post():
         flash('Please check your login details and try again.')
         return redirect(url_for('login.show_product')) # if the user doesn't exist or password is wrong, reload the page
     #login_user(user, remember=False)
+    user_role = ""
+    query_rol = "select distinct granted_role from USER_ROLE_PRIVS where upper(username)=upper('"+usuario+"')"
+    user_role = conexion.sentenciaCompuesta(query_rol)[0][0]
     query = """select u.k_tipoid, u.k_identificacion, r.k_region 
         from natame.representante_para_cliente r, natame.representante_cliente rp, natame.cliente c, natame.usuario u 
         where r.k_identificacion=rp.k_identificacion_rep 
@@ -82,7 +85,9 @@ def login_post():
     USER_DATA["k_tipoid"] = datos_cookie[0]
     USER_DATA["k_identificacion"] = datos_cookie[1]
     USER_DATA["n_usuario"] = usuario
-    USER_DATA["k_region"] = datos_cookie[2]
+    USER_DATA["rol"]= user_role
+    if len(datos_cookie)==2:
+        USER_DATA["k_region"] = datos_cookie[2]
     print(USER_DATA)
     return redirect(url_for('home.show_product'))
 
