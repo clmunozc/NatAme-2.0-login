@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from flask import Blueprint, Response, request, render_template, url_for, redirect, flash
+from flask import Blueprint, Response, request, render_template, url_for, redirect, flash, abort
 from werkzeug.wrappers import response
 from connect_db import connect
 import connect_db
@@ -16,6 +16,8 @@ conexion = None
 
 @home.route("/", methods=["GET"])
 def show_product():
+    if USER_DATA["rol"]=="ROL_CLIENTE":
+        abort(403)
     for datos in conexion.sentenciaCompuesta("select * from natame.producto"):
         RESPONSE_BODY["data"] += datos
     conexion.close()
@@ -35,11 +37,25 @@ def delete_from_cart(product_id):
 
 @categories.route("/", methods=["GET"])
 def show_product():
-    conexion = connect()
+    #conexion = connect()
     for datos in conexion.sentenciaCompuesta("select N_NOMCATEGORIA from categoria"):
         RESPONSE_BODY["data"] += datos
     conexion.close()
     return render_template('categories.html')
+
+#Errores
+
+@home.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'),404
+
+@home.errorhandler(403)
+def forbidden(error):
+    return render_template('403.html'),403
+
+@home.errorhandler(500)
+def not_found_error(error):
+    return render_template('500.html'),500
 
 #Login 
 
