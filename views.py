@@ -84,25 +84,32 @@ def login_post():
     user_role = ""
     query_rol = "select distinct granted_role from USER_ROLE_PRIVS where upper(username)=upper('"+usuario+"')"
     user_role = conexion.sentenciaCompuesta(query_rol)[0][0]
-    query = """select u.k_tipoid, u.k_identificacion, r.k_region 
-        from natame.representante_para_cliente r, natame.representante_cliente rp, natame.cliente c, natame.usuario u 
-        where r.k_identificacion=rp.k_identificacion_rep 
-        and c.k_identificacion = rp.k_identificacion_cli 
-        and c.k_tipoid = rp.k_tipoid_cli
-        and rp.f_fin_rep is null 
-        and c.k_identificacion = u.k_identificacion 
-        and c.k_tipoid = u.k_tipoid 
-        and u.n_usuario='""" + usuario + "'"
+    if user_role == "ROL_CLIENTE":
+        query = """select u.k_tipoid, u.k_identificacion, r.k_region 
+            from natame.representante_para_cliente r, natame.representante_cliente rp, natame.cliente c, natame.usuario u 
+            where r.k_identificacion=rp.k_identificacion_rep 
+            and c.k_identificacion = rp.k_identificacion_cli 
+            and c.k_tipoid = rp.k_tipoid_cli
+            and rp.f_fin_rep is null 
+            and c.k_identificacion = u.k_identificacion 
+            and c.k_tipoid = u.k_tipoid 
+            and u.n_usuario='""" + usuario + "'"
+    else:
+        query = """select r.k_tipoid,r.k_identificacion,r.k_region 
+            from natame.representante r, natame.usuario u 
+            where u.k_tipoid = r.k_tipoid 
+            and u.k_identificacion = r.k_identificacion 
+            and upper(u.n_usuario)=upper('""" + usuario + "')"
     datos_cookie=[]
     for dato in conexion.sentenciaCompuesta(query):
         datos_cookie.append(dato[0])
         datos_cookie.append(dato[1])
         datos_cookie.append(dato[2])
-    USER_DATA["k_tipoid"] = datos_cookie[0]
-    USER_DATA["k_identificacion"] = datos_cookie[1]
-    USER_DATA["n_usuario"] = usuario
-    USER_DATA["rol"]= user_role
-    if len(datos_cookie)==2:
+    if len(datos_cookie)>0:
+        USER_DATA["k_tipoid"] = datos_cookie[0]
+        USER_DATA["k_identificacion"] = datos_cookie[1]
+        USER_DATA["n_usuario"] = usuario
+        USER_DATA["rol"]= user_role
         USER_DATA["k_region"] = datos_cookie[2]
     print(USER_DATA)
     return redirect(url_for('home.show_product'))
